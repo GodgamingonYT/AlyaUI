@@ -214,53 +214,105 @@ Here is how an advanced, structured script looks in AlyaUI v4.0:
 ```lua
 local AlyaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/GodgamingonYT/AlyaUI/refs/heads/main/source.lua"))()
 
+-- 1. Create Window
 local Window = AlyaUI:CreateWindow({
-    Title = "OVERDRIVE H",
-    Version = "PREMIUM"
+    Title = "AlyaUI Showcase",
+    Version = "[v4.0]"
 })
 
-local MainTab = Window:CreateTab("Main")
-
--- Notification
+-- 2. Send Notification
 Window:Notify({
-    Title = "Injected!",
-    Content = "Loaded Overdrive H successfully.",
-    Duration = 4
+    Title = "Library Loaded",
+    Content = "Welcome to the AlyaUI feature showcase!",
+    Duration = 5
 })
 
--- Section 1: Movement
-local MovementSec = MainTab:AddSection({ Name = "Movement", Default = true })
+-- 3. Create Tabs
+local BasicTab = Window:CreateTab("Basic Elements")
+local AdvancedTab = Window:CreateTab("Advanced Elements")
 
-MovementSec:AddSlider({
-    Name = "WalkSpeed", Min = 16, Max = 100, Default = 16,
-    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end
+-- ========================================== --
+--             BASIC ELEMENTS TAB             --
+-- ========================================== --
+
+BasicTab:AddLabel("These elements are added directly to the tab.")
+
+BasicTab:AddParagraph({
+    Name = "Information",
+    Desc = "Check your developer console (F9) to see the output of these elements."
 })
 
-MovementSec:AddKeybind({
-    Name = "Fly Toggle Key", Default = Enum.KeyCode.F,
-    Callback = function() print("Toggled Fly") end
+BasicTab:AddDivider()
+
+BasicTab:AddButton({
+    Name = "Example Button",
+    Text = "Click Me",
+    Callback = function()
+        print("Button was clicked!")
+    end
 })
 
-MainTab:AddDivider()
-
--- Section 2: Visuals
-local VisualsSec = MainTab:AddSection({ Name = "Visuals", Default = true })
-
-VisualsSec:AddToggle({
-    Name = "Enable Chams", Default = false,
-    Callback = function(v) print("Chams:", v) end
+BasicTab:AddToggle({
+    Name = "Example Toggle",
+    Default = false,
+    Callback = function(state)
+        print("Toggle state changed to:", state)
+    end
 })
 
-VisualsSec:AddColorpicker({
-    Name = "Chams Color", Default = Color3.fromRGB(85, 75, 255),
-    Callback = function(color) print("Chams Color updated") end
+BasicTab:AddSlider({
+    Name = "Example Slider",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Callback = function(value)
+        print("Slider value is now:", value)
+    end
 })
 
-VisualsSec:AddButton({
-    Name = "Unload Script", Text = "Destroy UI",
-    Callback = function() print("Destroying...") end
+BasicTab:AddDropdown({
+    Name = "Example Dropdown",
+    Options = {"Option 1", "Option 2", "Option 3"},
+    Default = "Option 1",
+    Callback = function(selected)
+        print("Dropdown selected:", selected)
+    end
 })
 
--- Finish
+BasicTab:AddInput({
+    Name = "Example Input",
+    Placeholder = "Type something...",
+    Callback = function(text)
+        print("Input received:", text)
+    end
+})
+
+-- ========================================== --
+--           ADVANCED ELEMENTS TAB            --
+-- ========================================== --
+
+-- Creating a Section (Folder)
+local Section1 = AdvancedTab:AddSection({
+    Name = "Special Elements",
+    Default = true -- Starts opened
+})
+
+Section1:AddKeybind({
+    Name = "Example Keybind",
+    Default = Enum.KeyCode.F,
+    Callback = function(key)
+        print("Keybind fired! Key:", key.Name)
+    end
+})
+
+Section1:AddColorpicker({
+    Name = "Example Colorpicker",
+    Default = Color3.fromRGB(85, 75, 255),
+    Callback = function(color)
+        print("New color selected:", color)
+    end
+})
+
+-- 4. Initialize UI (Required at the bottom)
 Window:Init()
 ```
