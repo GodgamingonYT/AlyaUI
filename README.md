@@ -223,93 +223,97 @@ local Window = AlyaUI:CreateWindow({
 -- 2. Send Notification
 Window:Notify({
     Title = "Library Loaded",
-    Content = "Welcome to the AlyaUI feature showcase!",
+    Content = "Welcome to the fully patched AlyaUI v4.0!",
     Duration = 5
 })
 
 -- 3. Create Tabs
-local BasicTab = Window:CreateTab("Basic Elements")
-local AdvancedTab = Window:CreateTab("Advanced Elements")
+local MainTab = Window:CreateTab("Main Features")
+local AdvancedTab = Window:CreateTab("Advanced")
 
 -- ========================================== --
---             BASIC ELEMENTS TAB             --
+--               MAIN TAB                     --
 -- ========================================== --
 
-BasicTab:AddLabel("These elements are added directly to the tab.")
-
-BasicTab:AddParagraph({
-    Name = "Information",
-    Desc = "Check your developer console (F9) to see the output of these elements."
+local BasicSection = MainTab:AddSection({
+    Name = "Basic Elements",
+    Default = true
 })
 
-BasicTab:AddDivider()
+BasicSection:AddLabel("Welcome to the new and improved AlyaUI.")
 
-BasicTab:AddButton({
-    Name = "Example Button",
+BasicSection:AddParagraph({
+    Name = "Information",
+    Desc = "All bugs have been patched, including the transparency issue and missing elements."
+})
+
+BasicSection:AddDivider()
+
+BasicSection:AddButton({
+    Name = "Test Button",
     Text = "Click Me",
     Callback = function()
-        print("Button was clicked!")
+        print("Button clicked!")
     end
 })
 
-BasicTab:AddToggle({
-    Name = "Example Toggle",
+BasicSection:AddToggle({
+    Name = "Test Toggle",
     Default = false,
     Callback = function(state)
-        print("Toggle state changed to:", state)
+        print("Toggle is now:", state)
     end
 })
 
-BasicTab:AddSlider({
-    Name = "Example Slider",
+BasicSection:AddSlider({
+    Name = "Test Slider",
     Min = 0,
     Max = 100,
     Default = 50,
     Callback = function(value)
-        print("Slider value is now:", value)
+        print("Slider value:", value)
     end
 })
 
-BasicTab:AddDropdown({
-    Name = "Example Dropdown",
+BasicSection:AddDropdown({
+    Name = "Test Dropdown",
     Options = {"Option 1", "Option 2", "Option 3"},
     Default = "Option 1",
     Callback = function(selected)
-        print("Dropdown selected:", selected)
+        print("Selected:", selected)
     end
 })
 
-BasicTab:AddInput({
-    Name = "Example Input",
-    Placeholder = "Type something...",
+BasicSection:AddInput({
+    Name = "Test Input",
+    Placeholder = "Type here...",
     Callback = function(text)
-        print("Input received:", text)
+        print("Input:", text)
     end
 })
 
 -- ========================================== --
---           ADVANCED ELEMENTS TAB            --
+--             ADVANCED TAB                   --
 -- ========================================== --
 
--- Creating a Section (Folder)
-local Section1 = AdvancedTab:AddSection({
-    Name = "Special Elements",
-    Default = true -- Starts opened
+local AdvSection = AdvancedTab:AddSection({
+    Name = "Advanced Elements",
+    Default = true
 })
 
-Section1:AddKeybind({
-    Name = "Example Keybind",
-    Default = Enum.KeyCode.F,
+AdvSection:AddKeybind({
+    Name = "Test Keybind",
+    Default = Enum.KeyCode.E,
     Callback = function(key)
-        print("Keybind fired! Key:", key.Name)
+        print("Key pressed:", key.Name)
     end
 })
 
-Section1:AddColorpicker({
-    Name = "Example Colorpicker",
+AdvSection:AddColorpicker({
+    Name = "Test Colorpicker",
     Default = Color3.fromRGB(85, 75, 255),
     Callback = function(color)
-        print("New color selected:", color)
+        print("Color selected:", color)
     end
 })
 
