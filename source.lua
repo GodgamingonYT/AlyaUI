@@ -125,12 +125,12 @@ function AlyaUI:CreateWindow(config)
 	mainFrame.Size = UDim2.new(0, 640, 0, 400) 
 	mainFrame.Position = UDim2.new(0.5, -320, 0.5, -190)
 	mainFrame.BackgroundColor3 = COLORS.Background
-	mainFrame.BackgroundTransparency = 0.25 -- Fixed transparency at 0.25
+	mainFrame.BackgroundTransparency = 0.25 
 	mainFrame.BorderSizePixel = 0
 	mainFrame.Active = true
 	mainFrame.ClipsDescendants = true
 	mainFrame.GroupTransparency = 1 
-	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 16) -- Made the UI a bit more round
+	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 16) 
 	local mainStroke = Instance.new("UIStroke", mainFrame)
 	mainStroke.Thickness = 1.5
 	mainStroke.Color = COLORS.Accent
@@ -165,6 +165,8 @@ function AlyaUI:CreateWindow(config)
 	sidebar.BackgroundColor3 = COLORS.Sidebar
 	sidebar.BackgroundTransparency = 0.4
 	sidebar.BorderSizePixel = 0
+	Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 16) -- ADDED: Forces the bottom-left corner to be perfectly round
+	
 	local sideLayout = Instance.new("UIListLayout", sidebar)
 	sideLayout.Padding = UDim.new(0, 5)
 	local sidePadding = Instance.new("UIPadding", sidebar)
@@ -174,8 +176,9 @@ function AlyaUI:CreateWindow(config)
 	contentContainer.Size = UDim2.new(1, -160, 1, -41)
 	contentContainer.Position = UDim2.new(0, 160, 0, 41)
 	contentContainer.BackgroundTransparency = 1
+	Instance.new("UICorner", contentContainer).CornerRadius = UDim.new(0, 16) -- ADDED: Forces the bottom-right internal to clip perfectly too
 	
-	-- RESIZE GRIP (Moved up so minimize button can reference and hide it)
+	-- RESIZE GRIP
 	local resizeHandle = Instance.new("TextButton", mainFrame)
 	resizeHandle.Size = UDim2.new(0, 20, 0, 20)
 	resizeHandle.Position = UDim2.new(1, -20, 1, -20)
@@ -244,17 +247,17 @@ function AlyaUI:CreateWindow(config)
 			Window.CurrentSize = mainFrame.Size
 			tween(sidebar, {GroupTransparency = 1}, 0.15)
 			tween(contentContainer, {GroupTransparency = 1}, 0.15)
-			tween(resizeHandle, {TextTransparency = 1}, 0.15) -- Fades out the resize scale grip
+			tween(resizeHandle, {TextTransparency = 1}, 0.15) 
 			task.wait(0.1)
-			resizeHandle.Visible = false -- Fully hides the scale grip
+			resizeHandle.Visible = false 
 			tween(mainFrame, {Size = UDim2.new(0, Window.CurrentSize.X.Offset, 0, 40)}, 0.3)
 		else
-			resizeHandle.Visible = true -- Brings it back
+			resizeHandle.Visible = true 
 			tween(mainFrame, {Size = Window.CurrentSize}, 0.3)
 			task.wait(0.2)
 			tween(sidebar, {GroupTransparency = 0}, 0.2)
 			tween(contentContainer, {GroupTransparency = 0}, 0.2)
-			tween(resizeHandle, {TextTransparency = 0.5}, 0.2) -- Fades grip back in
+			tween(resizeHandle, {TextTransparency = 0.5}, 0.2) 
 		end
 	end)
 
