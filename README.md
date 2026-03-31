@@ -33,7 +33,7 @@ A premium, lag-free, and highly customizable UI library for Roblox script execut
 Load the library at the very top of your script using your Pastefy (or raw GitHub) link.
 
 ```lua
-local AlyaUI = loadstring(game:HttpGet("[https://raw.githubusercontent.com/GodgamingonYT/AlyaUI/refs/heads/main/source.lua](https://raw.githubusercontent.com/GodgamingonYT/AlyaUI/refs/heads/main/source.lua)"))()
+local AlyaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/GodgamingonYT/AlyaUI/refs/heads/main/source.lua"))()
 ```
 
 ---
@@ -212,7 +212,7 @@ Window:Init()
 Here is how an advanced, structured script looks in AlyaUI v4.0:
 
 ```lua
-local AlyaUI = loadstring(game:HttpGet("[https://pastefy.app/Fgq2rIxr/raw](https://pastefy.app/Fgq2rIxr/raw)"))()
+local AlyaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/GodgamingonYT/AlyaUI/refs/heads/main/source.lua"))()
 
 local Window = AlyaUI:CreateWindow({
     Title = "OVERDRIVE H",
