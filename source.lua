@@ -125,12 +125,12 @@ function AlyaUI:CreateWindow(config)
 	mainFrame.Size = UDim2.new(0, 640, 0, 400) 
 	mainFrame.Position = UDim2.new(0.5, -320, 0.5, -190)
 	mainFrame.BackgroundColor3 = COLORS.Background
-	mainFrame.BackgroundTransparency = 0.25
+	mainFrame.BackgroundTransparency = 0.25 -- Fixed transparency at 0.25
 	mainFrame.BorderSizePixel = 0
 	mainFrame.Active = true
 	mainFrame.ClipsDescendants = true
 	mainFrame.GroupTransparency = 1 
-	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 16) -- Made the UI a bit more round
 	local mainStroke = Instance.new("UIStroke", mainFrame)
 	mainStroke.Thickness = 1.5
 	mainStroke.Color = COLORS.Accent
@@ -158,7 +158,7 @@ function AlyaUI:CreateWindow(config)
 	divider.BackgroundTransparency = 0.5
 	divider.BorderSizePixel = 0
 
-	-- LAYOUT CONTAINERS (Moved up so Minimize can fade them out)
+	-- LAYOUT CONTAINERS
 	local sidebar = Instance.new("CanvasGroup", mainFrame)
 	sidebar.Size = UDim2.new(0, 160, 1, -41)
 	sidebar.Position = UDim2.new(0, 0, 0, 41)
@@ -174,6 +174,29 @@ function AlyaUI:CreateWindow(config)
 	contentContainer.Size = UDim2.new(1, -160, 1, -41)
 	contentContainer.Position = UDim2.new(0, 160, 0, 41)
 	contentContainer.BackgroundTransparency = 1
+	
+	-- RESIZE GRIP (Moved up so minimize button can reference and hide it)
+	local resizeHandle = Instance.new("TextButton", mainFrame)
+	resizeHandle.Size = UDim2.new(0, 20, 0, 20)
+	resizeHandle.Position = UDim2.new(1, -20, 1, -20)
+	resizeHandle.BackgroundTransparency = 1
+	resizeHandle.Text = "◢" 
+	resizeHandle.Font = Enum.Font.Gotham
+	resizeHandle.TextSize = 16
+	resizeHandle.TextColor3 = COLORS.TextMuted
+	resizeHandle.TextTransparency = 0.5
+	resizeHandle.ZIndex = 10
+
+	resizeHandle.MouseEnter:Connect(function() tween(resizeHandle, {TextTransparency = 0}, 0.2) end)
+	resizeHandle.MouseLeave:Connect(function() tween(resizeHandle, {TextTransparency = 0.5}, 0.2) end)
+
+	local resizing, resizeStart, startSize
+	resizeHandle.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not Window.IsMinimized then
+			resizing = true; resizeStart = input.Position; startSize = mainFrame.Size
+			input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then resizing = false end end)
+		end
+	end)
 
 	-- WINDOW CONTROLS
 	local controlContainer = Instance.new("Frame", titleBar)
@@ -219,16 +242,19 @@ function AlyaUI:CreateWindow(config)
 		Window.IsMinimized = not Window.IsMinimized
 		if Window.IsMinimized then
 			Window.CurrentSize = mainFrame.Size
-			-- FIX: Smooth WindUI Fade Out before resizing
 			tween(sidebar, {GroupTransparency = 1}, 0.15)
 			tween(contentContainer, {GroupTransparency = 1}, 0.15)
+			tween(resizeHandle, {TextTransparency = 1}, 0.15) -- Fades out the resize scale grip
 			task.wait(0.1)
+			resizeHandle.Visible = false -- Fully hides the scale grip
 			tween(mainFrame, {Size = UDim2.new(0, Window.CurrentSize.X.Offset, 0, 40)}, 0.3)
 		else
+			resizeHandle.Visible = true -- Brings it back
 			tween(mainFrame, {Size = Window.CurrentSize}, 0.3)
 			task.wait(0.2)
 			tween(sidebar, {GroupTransparency = 0}, 0.2)
 			tween(contentContainer, {GroupTransparency = 0}, 0.2)
+			tween(resizeHandle, {TextTransparency = 0.5}, 0.2) -- Fades grip back in
 		end
 	end)
 
@@ -244,28 +270,6 @@ function AlyaUI:CreateWindow(config)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
 	end)
 	
-	-- RESIZE GRIP
-	local resizeHandle = Instance.new("TextButton", mainFrame)
-	resizeHandle.Size = UDim2.new(0, 20, 0, 20)
-	resizeHandle.Position = UDim2.new(1, -20, 1, -20)
-	resizeHandle.BackgroundTransparency = 1
-	resizeHandle.Text = "◢" -- FIX: Replaced ugly ")" with clean wedge
-	resizeHandle.Font = Enum.Font.Gotham
-	resizeHandle.TextSize = 16
-	resizeHandle.TextColor3 = COLORS.TextMuted
-	resizeHandle.TextTransparency = 0.5
-	resizeHandle.ZIndex = 10
-
-	resizeHandle.MouseEnter:Connect(function() tween(resizeHandle, {TextTransparency = 0}, 0.2) end)
-	resizeHandle.MouseLeave:Connect(function() tween(resizeHandle, {TextTransparency = 0.5}, 0.2) end)
-
-	local resizing, resizeStart, startSize
-	resizeHandle.InputBegan:Connect(function(input)
-		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not Window.IsMinimized then
-			resizing = true; resizeStart = input.Position; startSize = mainFrame.Size
-			input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then resizing = false end end)
-		end
-	end)
 	resizeHandle.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
 	end)
@@ -331,7 +335,6 @@ function AlyaUI:CreateWindow(config)
 			return lbl
 		end
 
-		-- FIX: Added Paragraph function
 		function Elements:AddParagraph(options)
 			local row = Instance.new("Frame", targetParent)
 			row.BackgroundColor3 = COLORS.RowBg
@@ -515,7 +518,6 @@ function AlyaUI:CreateWindow(config)
 			end)
 		end
 		
-		-- FIX: Added Dropdown function
 		function Elements:AddDropdown(options)
 			local optionsList = options.Options or {}
 			local default = options.Default or optionsList[1]
