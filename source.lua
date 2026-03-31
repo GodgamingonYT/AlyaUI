@@ -125,7 +125,7 @@ function AlyaUI:CreateWindow(config)
 	mainFrame.Size = UDim2.new(0, 640, 0, 400) 
 	mainFrame.Position = UDim2.new(0.5, -320, 0.5, -190)
 	mainFrame.BackgroundColor3 = COLORS.Background
-	mainFrame.BackgroundTransparency = 0.25 
+	mainFrame.BackgroundTransparency = 0.25
 	mainFrame.BorderSizePixel = 0
 	mainFrame.Active = true
 	mainFrame.ClipsDescendants = true
@@ -157,6 +157,23 @@ function AlyaUI:CreateWindow(config)
 	divider.BackgroundColor3 = COLORS.Accent
 	divider.BackgroundTransparency = 0.5
 	divider.BorderSizePixel = 0
+
+	-- LAYOUT CONTAINERS (Moved up so Minimize can fade them out)
+	local sidebar = Instance.new("CanvasGroup", mainFrame)
+	sidebar.Size = UDim2.new(0, 160, 1, -41)
+	sidebar.Position = UDim2.new(0, 0, 0, 41)
+	sidebar.BackgroundColor3 = COLORS.Sidebar
+	sidebar.BackgroundTransparency = 0.4
+	sidebar.BorderSizePixel = 0
+	local sideLayout = Instance.new("UIListLayout", sidebar)
+	sideLayout.Padding = UDim.new(0, 5)
+	local sidePadding = Instance.new("UIPadding", sidebar)
+	sidePadding.PaddingTop = UDim.new(0, 10); sidePadding.PaddingLeft = UDim.new(0, 10); sidePadding.PaddingRight = UDim.new(0, 10)
+
+	local contentContainer = Instance.new("CanvasGroup", mainFrame)
+	contentContainer.Size = UDim2.new(1, -160, 1, -41)
+	contentContainer.Position = UDim2.new(0, 160, 0, 41)
+	contentContainer.BackgroundTransparency = 1
 
 	-- WINDOW CONTROLS
 	local controlContainer = Instance.new("Frame", titleBar)
@@ -202,9 +219,16 @@ function AlyaUI:CreateWindow(config)
 		Window.IsMinimized = not Window.IsMinimized
 		if Window.IsMinimized then
 			Window.CurrentSize = mainFrame.Size
+			-- FIX: Smooth WindUI Fade Out before resizing
+			tween(sidebar, {GroupTransparency = 1}, 0.15)
+			tween(contentContainer, {GroupTransparency = 1}, 0.15)
+			task.wait(0.1)
 			tween(mainFrame, {Size = UDim2.new(0, Window.CurrentSize.X.Offset, 0, 40)}, 0.3)
 		else
 			tween(mainFrame, {Size = Window.CurrentSize}, 0.3)
+			task.wait(0.2)
+			tween(sidebar, {GroupTransparency = 0}, 0.2)
+			tween(contentContainer, {GroupTransparency = 0}, 0.2)
 		end
 	end)
 
@@ -222,15 +246,14 @@ function AlyaUI:CreateWindow(config)
 	
 	-- RESIZE GRIP
 	local resizeHandle = Instance.new("TextButton", mainFrame)
-	resizeHandle.Size = UDim2.new(0, 25, 0, 25)
+	resizeHandle.Size = UDim2.new(0, 20, 0, 20)
 	resizeHandle.Position = UDim2.new(1, -20, 1, -20)
 	resizeHandle.BackgroundTransparency = 1
-	resizeHandle.Text = ")"
-	resizeHandle.Font = Enum.Font.GothamBold
-	resizeHandle.TextSize = 22
+	resizeHandle.Text = "◢" -- FIX: Replaced ugly ")" with clean wedge
+	resizeHandle.Font = Enum.Font.Gotham
+	resizeHandle.TextSize = 16
 	resizeHandle.TextColor3 = COLORS.TextMuted
 	resizeHandle.TextTransparency = 0.5
-	resizeHandle.Rotation = 45 
 	resizeHandle.ZIndex = 10
 
 	resizeHandle.MouseEnter:Connect(function() tween(resizeHandle, {TextTransparency = 0}, 0.2) end)
@@ -260,23 +283,6 @@ function AlyaUI:CreateWindow(config)
 			tween(mainFrame, {Size = Window.CurrentSize}, 0.08)
 		end
 	end)
-
-	-- LAYOUT CONTAINERS
-	local sidebar = Instance.new("Frame", mainFrame)
-	sidebar.Size = UDim2.new(0, 160, 1, -41)
-	sidebar.Position = UDim2.new(0, 0, 0, 41)
-	sidebar.BackgroundColor3 = COLORS.Sidebar
-	sidebar.BackgroundTransparency = 0.4
-	sidebar.BorderSizePixel = 0
-	local sideLayout = Instance.new("UIListLayout", sidebar)
-	sideLayout.Padding = UDim.new(0, 5)
-	local sidePadding = Instance.new("UIPadding", sidebar)
-	sidePadding.PaddingTop = UDim.new(0, 10); sidePadding.PaddingLeft = UDim.new(0, 10); sidePadding.PaddingRight = UDim.new(0, 10)
-
-	local contentContainer = Instance.new("Frame", mainFrame)
-	contentContainer.Size = UDim2.new(1, -160, 1, -41)
-	contentContainer.Position = UDim2.new(0, 160, 0, 41)
-	contentContainer.BackgroundTransparency = 1
 
 	function Window:SelectTab(name)
 		for pageName, frame in pairs(self.Pages) do
@@ -323,6 +329,46 @@ function AlyaUI:CreateWindow(config)
 			lbl.TextSize = 13
 			lbl.TextXAlignment = Enum.TextXAlignment.Left
 			return lbl
+		end
+
+		-- FIX: Added Paragraph function
+		function Elements:AddParagraph(options)
+			local row = Instance.new("Frame", targetParent)
+			row.BackgroundColor3 = COLORS.RowBg
+			row.BackgroundTransparency = 0.4
+			Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+
+			local layout = Instance.new("UIListLayout", row)
+			layout.Padding = UDim.new(0, 5)
+			layout.SortOrder = Enum.SortOrder.LayoutOrder
+			
+			local pad = Instance.new("UIPadding", row)
+			pad.PaddingTop = UDim.new(0, 10); pad.PaddingBottom = UDim.new(0, 10); pad.PaddingLeft = UDim.new(0, 15); pad.PaddingRight = UDim.new(0, 15)
+
+			local title = Instance.new("TextLabel", row)
+			title.Size = UDim2.new(1, 0, 0, 14)
+			title.BackgroundTransparency = 1
+			title.Text = options.Name or "Paragraph"
+			title.TextColor3 = COLORS.TextMain
+			title.Font = Enum.Font.GothamMedium
+			title.TextSize = 13
+			title.TextXAlignment = Enum.TextXAlignment.Left
+			title.LayoutOrder = 1
+
+			local desc = Instance.new("TextLabel", row)
+			desc.Size = UDim2.new(1, 0, 0, 0)
+			desc.BackgroundTransparency = 1
+			desc.Text = options.Desc or ""
+			desc.TextColor3 = COLORS.TextMuted
+			desc.Font = Enum.Font.Gotham
+			desc.TextSize = 12
+			desc.TextXAlignment = Enum.TextXAlignment.Left
+			desc.TextYAlignment = Enum.TextYAlignment.Top
+			desc.TextWrapped = true
+			desc.LayoutOrder = 2
+			
+			desc.Size = UDim2.new(1, 0, 0, desc.TextBounds.Y + 5)
+			row.Size = UDim2.new(1, 0, 0, 10 + title.Size.Y.Offset + 5 + desc.TextBounds.Y + 10)
 		end
 
 		function Elements:AddButton(options)
@@ -466,6 +512,103 @@ function AlyaUI:CreateWindow(config)
 			end)
 			UserInputService.InputChanged:Connect(function(input)
 				if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then updateSlider(input) end
+			end)
+		end
+		
+		-- FIX: Added Dropdown function
+		function Elements:AddDropdown(options)
+			local optionsList = options.Options or {}
+			local default = options.Default or optionsList[1]
+			local callback = options.Callback or function() end
+			
+			local row = Instance.new("Frame", targetParent)
+			row.Size = UDim2.new(1, 0, 0, 45)
+			row.BackgroundColor3 = COLORS.RowBg
+			row.BackgroundTransparency = 0.4
+			row.ClipsDescendants = true
+			Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+
+			local title = Instance.new("TextLabel", row)
+			title.Size = UDim2.new(0.5, 0, 0, 45)
+			title.Position = UDim2.new(0, 15, 0, 0)
+			title.BackgroundTransparency = 1
+			title.Text = options.Name or "Dropdown"
+			title.TextColor3 = COLORS.TextMain
+			title.Font = Enum.Font.GothamMedium
+			title.TextSize = 13
+			title.TextXAlignment = Enum.TextXAlignment.Left
+			
+			local displayBtn = Instance.new("TextButton", row)
+			displayBtn.Size = UDim2.new(0, 120, 0, 26)
+			displayBtn.Position = UDim2.new(1, -135, 0, 9)
+			displayBtn.BackgroundColor3 = COLORS.ElementBg
+			displayBtn.Text = "  " .. tostring(default)
+			displayBtn.TextColor3 = COLORS.TextMuted
+			displayBtn.Font = Enum.Font.Gotham
+			displayBtn.TextSize = 12
+			displayBtn.TextXAlignment = Enum.TextXAlignment.Left
+			Instance.new("UICorner", displayBtn).CornerRadius = UDim.new(0, 6)
+			
+			local arrow = Instance.new("TextLabel", displayBtn)
+			arrow.Size = UDim2.new(0, 20, 1, 0)
+			arrow.Position = UDim2.new(1, -20, 0, 0)
+			arrow.BackgroundTransparency = 1
+			arrow.Text = "▼"
+			arrow.TextColor3 = COLORS.TextMuted
+			arrow.TextSize = 10
+			arrow.Font = Enum.Font.GothamBold
+			
+			local listContainer = Instance.new("ScrollingFrame", row)
+			listContainer.Size = UDim2.new(1, -30, 0, 0)
+			listContainer.Position = UDim2.new(0, 15, 0, 45)
+			listContainer.BackgroundTransparency = 1
+			listContainer.ScrollBarThickness = 2
+			listContainer.ScrollBarImageColor3 = COLORS.Accent
+			listContainer.BorderSizePixel = 0
+			
+			local listLayout = Instance.new("UIListLayout", listContainer)
+			listLayout.Padding = UDim.new(0, 4)
+			
+			local isOpen = false
+			
+			local function populate()
+				for _, child in ipairs(listContainer:GetChildren()) do
+					if child:IsA("TextButton") then child:Destroy() end
+				end
+				
+				for _, opt in ipairs(optionsList) do
+					local optBtn = Instance.new("TextButton", listContainer)
+					optBtn.Size = UDim2.new(1, -8, 0, 25)
+					optBtn.BackgroundColor3 = COLORS.ElementBg
+					optBtn.Text = tostring(opt)
+					optBtn.TextColor3 = COLORS.TextMain
+					optBtn.Font = Enum.Font.Gotham
+					optBtn.TextSize = 12
+					Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 4)
+					
+					optBtn.MouseButton1Click:Connect(function()
+						displayBtn.Text = "  " .. tostring(opt)
+						isOpen = false
+						tween(arrow, {Rotation = 0}, 0.2)
+						tween(row, {Size = UDim2.new(1, 0, 0, 45)}, 0.2)
+						callback(opt)
+					end)
+				end
+				listContainer.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+			end
+			
+			displayBtn.MouseButton1Click:Connect(function()
+				isOpen = not isOpen
+				populate()
+				if isOpen then
+					local listHeight = math.clamp(#optionsList * 29, 0, 120)
+					listContainer.Size = UDim2.new(1, -30, 0, listHeight)
+					tween(arrow, {Rotation = 180}, 0.2)
+					tween(row, {Size = UDim2.new(1, 0, 0, 45 + listHeight + 10)}, 0.2)
+				else
+					tween(arrow, {Rotation = 0}, 0.2)
+					tween(row, {Size = UDim2.new(1, 0, 0, 45)}, 0.2)
+				end
 			end)
 		end
 
@@ -672,10 +815,8 @@ function AlyaUI:CreateWindow(config)
 			header.MouseButton1Click:Connect(function() isOpen = not isOpen; updateSize() end)
 			layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() if isOpen then secBg.Size = UDim2.new(1, 0, 0, 40 + layout.AbsoluteContentSize.Y + 10) end end)
 			
-			-- Wait a frame to process sizes properly
 			task.delay(0.05, function() updateSize() end)
 			
-			-- Returns a localized build element function so everything adds INSIDE the section!
 			return BuildElements(content)
 		end
 
@@ -724,7 +865,6 @@ function AlyaUI:CreateWindow(config)
 		btn.MouseLeave:Connect(function() if btn.BackgroundColor3 ~= COLORS.TabActive then tween(btn, {BackgroundColor3 = COLORS.TabIdle, BackgroundTransparency = 0.5}) end end)
 		btn.MouseButton1Click:Connect(function() self:SelectTab(name) end)
 
-		-- Return the elements mapped to the scroll frame
 		return BuildElements(scroll)
 	end
 
